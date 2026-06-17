@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Input System - Al Wildan 15</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        awblue: { DEFAULT: '#0000FF', dark: '#0000CC', light: '#4D4DFF' },
+                        awgreen: { DEFAULT: '#00FF00', dark: '#00CC00', light: '#e6ffe6' },
+                        aworange: { DEFAULT: '#FF6600', light: '#FF8533' },
+                        skyglass: { DEFAULT: '#dcf5ff', dark: '#bae6fd' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Transisi Tab & Soft Animations */
+        .tab-content { display: none; opacity: 0; transition: opacity 0.4s ease; }
+        .tab-content.active { display: block; opacity: 1; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,150,255,0.4); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,150,255,0.6); }
+
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(40px, -60px) scale(1.2); }
+            66% { transform: translate(-30px, 30px) scale(0.8); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 10s infinite alternate; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+
+        /* --- FITUR ESTETIK BARU: FLOATING SYMBOLS, NEON FLICKER & SCANNER --- */
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+        .floating-symbol {
+            position: fixed;
+            color: rgba(10, 184, 212, 0.3);
+            font-family: monospace;
+            font-weight: bold;
+            user-select: none;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp linear infinite;
+            text-shadow: 0 0 10px rgba(10, 184, 212, 0.5);
+        }
+
+        @keyframes scan {
+            0% { top: -5%; opacity: 0; }
+            10% { opacity: 1; }
+            80% { top: 105%; opacity: 1; }
+            90% { opacity: 0; }
+            100% { top: 105%; opacity: 0; }
+        }
+        .cyber-scanner {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.8), transparent);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 5px rgba(255, 255, 255, 0.5);
+            animation: scan 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; text-shadow: 0 0 15px rgba(10, 184, 212, 0.6), 0 0 30px rgba(10, 184, 212, 0.4); }
+            20%, 24%, 55% { opacity: 0.6; text-shadow: none; }
+        }
+        .neon-flicker {
+            animation: flicker 6s infinite;
+        }
+
+        /* REALISTIC CIRCUIT BACKGROUND (SVG PATTERN) */
+        .bg-circuit {
+            background-color: #060b14; 
+            background-image: url("data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='rgba(0, 220, 255, 0.3)' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M100 0 v200 l50 50 h150 l50 -50 v-200 M110 0 v195 l50 50 h130 l50 -50 v-195 M120 0 v190 l50 50 h110 l50 -50 v-190 M130 0 v185 l50 50 h90 l50 -50 v-185'/%3E%3Cpath d='M800 400 h-200 l-50 50 v150 l50 50 h200 M800 410 h-195 l-50 50 v130 l50 50 h195 M800 420 h-190 l-50 50 v110 l50 50 h190 M800 430 h-185 l-50 50 v90 l50 50 h185'/%3E%3Cpath d='M0 600 h150 l50 50 v150 M0 610 h145 l50 50 v140 M0 620 h140 l50 50 v130 M0 630 h135 l50 50 v120'/%3E%3Cpath d='M50 50 l100 100 v100 l-50 50 h-100 M60 50 l90 90 v100 l-50 50 h-100'/%3E%3Cpath d='M750 750 l-100 -100 v-100 l50 -50 h100 M740 750 l-90 -90 v-100 l50 -50 h100'/%3E%3Cpath d='M400 800 v-150 l-50 -50 h-100 l-50 50 v150 M410 800 v-145 l-50 -50 h-80 l-50 50 v145'/%3E%3Cpath d='M200 300 h50 l20 20 v50 l-20 20 h-50 M500 200 v50 l30 30 h80 M600 600 v-50 l-30 -30 h-80 M300 500 h-50 l-20 -20 v-50 M700 100 l-50 50 v50 l50 50 M100 700 l50 -50 v-50 l-50 -50 M350 250 l-50 -50 v-50 M450 550 l50 50 v50'/%3E%3Cpath d='M10 200 h50 l20 20 v20 M10 210 h45 l20 20 v10 M30 800 v-50 l20 -20 h30 M700 800 v-40 l-20 -20 h-30 M800 150 h-40 l-30 30 v40 M400 0 v40 l30 30 h40'/%3E%3C/g%3E%3Cg fill='rgba(0, 255, 255, 0.7)'%3E%3Ccircle cx='300' cy='250' r='4'/%3E%3Ccircle cx='310' cy='250' r='4'/%3E%3Ccircle cx='320' cy='250' r='4'/%3E%3Ccircle cx='330' cy='250' r='4'/%3E%3Ccircle cx='550' cy='650' r='4'/%3E%3Ccircle cx='550' cy='640' r='4'/%3E%3Ccircle cx='550' cy='630' r='4'/%3E%3Ccircle cx='550' cy='620' r='4'/%3E%3Ccircle cx='200' cy='750' r='4'/%3E%3Ccircle cx='195' cy='750' r='4'/%3E%3Ccircle cx='190' cy='750' r='4'/%3E%3Ccircle cx='185' cy='750' r='4'/%3E%3Ccircle cx='50' cy='200' r='3'/%3E%3Ccircle cx='60' cy='200' r='3'/%3E%3Ccircle cx='750' cy='600' r='3'/%3E%3Ccircle cx='740' cy='600' r='3'/%3E%3Ccircle cx='250' cy='320' r='5'/%3E%3Ccircle cx='250' cy='370' r='5'/%3E%3Ccircle cx='580' cy='250' r='3'/%3E%3Ccircle cx='490' cy='520' r='3'/%3E%3Ccircle cx='700' cy='200' r='4'/%3E%3Ccircle cx='100' cy='600' r='4'/%3E%3Ccircle cx='80' cy='240' r='3'/%3E%3Ccircle cx='75' cy='220' r='3'/%3E%3Ccircle cx='50' cy='730' r='3'/%3E%3Ccircle cx='650' cy='760' r='3'/%3E%3Ccircle cx='730' cy='190' r='3'/%3E%3Ccircle cx='470' cy='70' r='3'/%3E%3C/g%3E%3Crect x='320' y='320' width='160' height='160' rx='10' fill='%23060d1a' stroke='rgba(0, 220, 255, 0.6)' stroke-width='2'/%3E%3Crect x='330' y='330' width='140' height='140' rx='6' fill='none' stroke='rgba(0, 220, 255, 0.2)' stroke-width='2'/%3E%3Cg stroke='rgba(0, 220, 255, 0.6)' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M340 320 v-15 M360 320 v-15 M380 320 v-15 M400 320 v-15 M420 320 v-15 M440 320 v-15 M460 320 v-15'/%3E%3Cpath d='M340 480 v15 M360 480 v15 M380 480 v15 M400 480 v15 M420 480 v15 M440 480 v15 M460 480 v15'/%3E%3Cpath d='M320 340 h-15 M320 360 h-15 M320 380 h-15 M320 400 h-15 M320 420 h-15 M320 440 h-15 M320 460 h-15'/%3E%3Cpath d='M480 340 h15 M480 360 h15 M480 380 h15 M480 400 h15 M480 420 h15 M480 440 h15 M480 460 h15'/%3E%3C/g%3E%3Ccircle cx='400' cy='400' r='40' fill='none' stroke='rgba(0, 220, 255, 0.3)' stroke-width='2'/%3E%3Ccircle cx='400' cy='400' r='15' fill='rgba(0, 220, 255, 0.4)'/%3E%3Cpath d='M400 360 v-10 M400 440 v10 M360 400 h-10 M440 400 h10 M370 370 l-10 -10 M430 430 l10 10 M370 430 l-10 10 M430 370 l10 -10' stroke='rgba(0, 220, 255, 0.4)' stroke-width='2'/%3E%3Cg fill='%23060d1a' stroke='rgba(0, 220, 255, 0.5)' stroke-width='1.5'%3E%3Crect x='580' y='250' width='30' height='100' rx='3'/%3E%3Crect x='630' y='250' width='30' height='100' rx='3'/%3E%3Crect x='150' y='500' width='100' height='30' rx='3'/%3E%3Crect x='150' y='550' width='100' height='30' rx='3'/%3E%3C/g%3E%3Cg stroke='rgba(0, 220, 255, 0.6)' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M580 260 h-8 M580 270 h-8 M580 280 h-8 M580 290 h-8 M580 300 h-8 M580 310 h-8 M580 320 h-8 M580 330 h-8 M580 340 h-8'/%3E%3Cpath d='M610 260 h8 M610 270 h8 M610 280 h8 M610 290 h8 M610 300 h8 M610 310 h8 M610 320 h8 M610 330 h8 M610 340 h8'/%3E%3Cpath d='M630 260 h-8 M630 270 h-8 M630 280 h-8 M630 290 h-8 M630 300 h-8 M630 310 h-8 M630 320 h-8 M630 330 h-8 M630 340 h-8'/%3E%3Cpath d='M660 260 h8 M660 270 h8 M660 280 h8 M660 290 h8 M660 300 h8 M660 310 h8 M660 320 h8 M660 330 h8 M660 340 h8'/%3E%3Cpath d='M160 500 v-8 M170 500 v-8 M180 500 v-8 M190 500 v-8 M200 500 v-8 M210 500 v-8 M220 500 v-8 M230 500 v-8 M240 500 v-8'/%3E%3Cpath d='M160 530 v8 M170 530 v8 M180 530 v8 M190 530 v8 M200 530 v8 M210 530 v8 M220 530 v8 M230 530 v8 M240 530 v8'/%3E%3Cpath d='M160 550 v-8 M170 550 v-8 M180 550 v-8 M190 550 v-8 M200 550 v-8 M210 550 v-8 M220 550 v-8 M230 550 v-8 M240 550 v-8'/%3E%3Cpath d='M160 580 v8 M170 580 v8 M180 580 v8 M190 580 v8 M200 580 v8 M210 580 v8 M220 580 v8 M230 580 v8 M240 580 v8'/%3E%3C/g%3E%3Crect x='100' y='100' width='40' height='40' rx='2' fill='%23060d1a' stroke='rgba(0, 220, 255, 0.4)' stroke-width='1.5'/%3E%3Crect x='700' y='700' width='40' height='40' rx='2' fill='%23060d1a' stroke='rgba(0, 220, 255, 0.4)' stroke-width='1.5'/%3E%3Crect x='650' y='50' width='50' height='30' rx='2' fill='%23060d1a' stroke='rgba(0, 220, 255, 0.4)' stroke-width='1.5'/%3E%3Cg fill='rgba(0, 255, 255, 0.8)'%3E%3Ccircle cx='310' cy='310' r='2'/%3E%3Ccircle cx='490' cy='310' r='2'/%3E%3Ccircle cx='310' cy='490' r='2'/%3E%3Ccircle cx='490' cy='490' r='2'/%3E%3Ccircle cx='120' cy='120' r='2'/%3E%3Ccircle cx='720' cy='720' r='2'/%3E%3Ccircle cx='675' cy='65' r='2'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 500px 500px;
+        }
+
+        /* PREMIUM FROSTED GLASS EFFECT */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(210, 245, 255, 0.88), rgba(170, 225, 255, 0.78)); 
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(0, 180, 255, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 20, 40, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+        
+        .glass-header {
+            background: linear-gradient(to right, rgba(2, 10, 30, 0.9), rgba(5, 30, 80, 0.9));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 220, 255, 0.3);
+        }
+
+        .glass-input {
+            background-color: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(0, 180, 255, 0.3);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+            color: #1e293b;
+        }
+        .glass-input:focus {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-color: #0088ff;
+            box-shadow: 0 0 0 3px rgba(0, 136, 255, 0.25);
+            outline: none;
+        }
+        .glass-input::placeholder { color: #64748b; }
+        
+        .inner-panel {
+            background: rgba(255, 255, 255, 0.45);
+            border: 1px solid rgba(0, 180, 255, 0.2);
+        }
+
+        /* ================= CYBER/CIRCUIT BUTTONS ================= */
+        .btn-cyber {
+            position: relative;
+            background: #1c3659; /* Dark glassy blue */
+            border: 2px solid #0ab8d4 !important; /* Cyan border */
+            color: #ffffff !important;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(10, 184, 212, 0.3), inset 0 0 10px rgba(10, 184, 212, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            z-index: 1;
+        }
+
+        /* Ornamen Garis Miring di Kiri & Kanan (Ala panel sci-fi) */
+        .btn-cyber::before,
+        .btn-cyber::after {
+            content: '';
+            position: absolute;
+            top: -10%;
+            width: 14px;
+            height: 120%;
+            background: #0ab8d4;
+            transform: skewX(-20deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: -1;
+        }
+        .btn-cyber::before { left: 15px; }
+        .btn-cyber::after { right: 15px; }
+
+        .btn-cyber:hover:not(:disabled) {
+            background: #12243d !important;
+            border-color: #00ffff !important;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6), inset 0 0 15px rgba(0, 255, 255, 0.4) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Efek Ornamen Bergeser saat Hover */
+        .btn-cyber:hover:not(:disabled)::before {
+            left: 25px;
+            background: #00ffff;
+            width: 18px;
+        }
+        .btn-cyber:hover:not(:disabled)::after {
+            right: 25px;
+            background: #00ffff;
+            width: 18px;
+        }
+
+        /* Style untuk tombol yang disabled/belum aktif */
+        .btn-cyber:disabled,
+        .btn-cyber-disabled {
+            background: rgba(28, 54, 89, 0.5) !important;
+            border: 2px solid rgba(10, 184, 212, 0.3) !important;
+            color: rgba(255, 255, 255, 0.4) !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+            transform: none;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            z-index: 1;
+        }
+        .btn-cyber:disabled::before,
+        .btn-cyber:disabled::after,
+        .btn-cyber-disabled::before,
+        .btn-cyber-disabled::after {
+            content: '';
+            position: absolute;
+            top: -10%;
+            width: 14px;
+            height: 120%;
+            background: rgba(10, 184, 212, 0.15);
+            transform: skewX(-20deg);
+            z-index: -1;
+        }
+        .btn-cyber:disabled::before,
+        .btn-cyber-disabled::before { left: 15px; }
+        .btn-cyber:disabled::after,
+        .btn-cyber-disabled::after { right: 15px; }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased bg-circuit">
+
+    <!-- FITUR ESTETIK: FLOATING CYBER SYMBOLS -->
+    <div class="floating-symbol" style="left: 10%; font-size: 2rem; animation-duration: 18s; animation-delay: 0s;">{ }</div>
+    <div class="floating-symbol" style="left: 85%; font-size: 3rem; animation-duration: 25s; animation-delay: 5s;">&lt;/&gt;</div>
+    <div class="floating-symbol" style="left: 45%; font-size: 2.5rem; animation-duration: 22s; animation-delay: 2s;">+</div>
+    <div class="floating-symbol" style="left: 20%; font-size: 1.5rem; animation-duration: 15s; animation-delay: 8s;">[ ]</div>
+    <div class="floating-symbol" style="left: 75%; font-size: 2.2rem; animation-duration: 28s; animation-delay: 4s;">//</div>
+    <div class="floating-symbol" style="left: 60%; font-size: 1.8rem; animation-duration: 20s; animation-delay: 10s;">*</div>
+    <div class="floating-symbol" style="left: 35%; font-size: 2.8rem; animation-duration: 26s; animation-delay: 12s;">#</div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed top-5 right-5 z-[9999] hidden px-6 py-4 rounded-xl shadow-2xl text-white font-bold max-w-md transition-all duration-300 transform translate-y-[-20px] opacity-0 border border-white/20 backdrop-blur-md"></div>
+
+    <!-- Glowing Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-cyan-500 rounded-full mix-blend-screen filter blur-[130px] opacity-[0.3] pointer-events-none animate-blob"></div>
+    <div class="fixed bottom-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-awblue rounded-full mix-blend-screen filter blur-[150px] opacity-[0.4] pointer-events-none animate-blob animation-delay-2000"></div>
+    <div class="fixed top-[40%] left-[30%] w-[25rem] h-[25rem] bg-awgreen rounded-full mix-blend-screen filter blur-[120px] opacity-[0.2] pointer-events-none animate-blob animation-delay-4000"></div>
+
+    <!-- ================= LOGIN SCREEN ================= -->
+    <div id="loginContainer" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+        <div class="glass-panel p-8 sm:p-10 rounded-[2rem] w-full max-w-md relative z-10 transition-transform duration-500 hover:scale-[1.01] overflow-hidden">
+            <!-- FITUR ESTETIK: CYBER SCANNER -->
+            <div class="cyber-scanner"></div>
+
+            <div class="text-center mb-8 relative z-10">
+                <div class="relative w-28 h-28 mx-auto rounded-full border-[3px] border-white bg-white overflow-hidden flex items-center justify-center shadow-lg mb-5">
+                    <img src="https://thumbs2.imgbox.com/dc/77/MB6lXPkz_t.png" alt="Logo AW15" class="absolute inset-0 w-full h-full object-contain bg-white z-10" onerror="this.style.display='none'">
+                </div>
+                <!-- FITUR ESTETIK: NEON FLICKER -->
+                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight neon-flicker">Login Guru</h2>
+                <p class="text-sm text-sky-700 mt-2 font-bold uppercase tracking-widest">Exam Input System</p>
+            </div>
+
+            <form id="loginForm" class="space-y-5 relative z-10">
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-700" for="username">Username / NIP</label>
+                    <input type="text" id="username" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Masukkan username" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-700" for="password">Password</label>
+                    <input type="password" id="password" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit" class="w-full btn-cyber font-bold py-4 px-4 rounded-xl mt-6">
+                    Masuk Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= APP CONTAINER ================= -->
+    <div id="appContainer" class="hidden relative z-10">
+
+    <!-- HEADER -->
+    <header class="glass-header text-white shadow-2xl sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="relative w-11 h-11 rounded-full border-2 border-cyan-400 bg-white overflow-hidden flex items-center justify-center shadow-md">
+                    <img src="https://thumbs2.imgbox.com/dc/77/MB6lXPkz_t.png" alt="Logo AW15" class="absolute inset-0 w-full h-full object-contain bg-white z-10" onerror="this.style.display='none'">
+                </div>
+                <!-- FITUR ESTETIK: NEON FLICKER -->
+                <h1 class="text-xl font-bold tracking-tight text-white drop-shadow-md neon-flicker">Exam Input System</h1>
+            </div>
+            <div class="flex items-center">
+                <span id="userGreeting" class="text-sm font-medium mr-4 hidden sm:block text-cyan-100">Selamat datang, Guru!</span>
+                <button id="btnLogout" class="bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+
+        <!-- TABS NAVIGATION -->
+        <div class="flex space-x-2 mb-8 bg-white/10 p-1.5 rounded-xl backdrop-blur-md border border-white/20 w-fit shadow-lg">
+            <button id="tabBtnInputer" class="tab-btn active py-2 px-6 font-bold text-sky-800 bg-white/90 rounded-lg shadow-sm focus:outline-none transition-all">
+                Exam Inputer
+            </button>
+            <button id="tabBtnPreviewer" class="tab-btn py-2 px-6 font-semibold text-white/80 hover:text-white focus:outline-none transition-all">
+                Exam Previewer / Histori
+            </button>
+        </div>
+
+        <!-- ================= TAB: EXAM INPUTER ================= -->
+        <div id="tabInputer" class="tab-content active">
+
+            <!-- STEP 1: IDENTITAS UJIAN -->
+            <div class="glass-panel rounded-[1.5rem] p-6 md:p-8 mb-8 relative overflow-hidden">
+                <div class="cyber-scanner"></div>
+                <h2 class="text-xl font-extrabold text-slate-800 mb-6 flex items-center relative z-10">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center mr-3 shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    </div>
+                    Step 1: Identitas Ujian
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6 relative z-10" id="identityFormContainer">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold mb-2 text-slate-700">Jenis Ujian</label>
+                        <select id="examType" class="glass-input w-full p-3.5 rounded-xl font-medium cursor-pointer">
+                            <option value="" disabled selected>Pilih Jenis Ujian...</option>
+                            <option value="SNBT">SNBT</option>
+                            <option value="TKA">TKA</option>
+                            <option value="SAJ">SAJ</option>
+                            <option value="SAT">SAT</option>
+                            <option value="STS">STS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 text-slate-700">Judul Ujian</label>
+                        <input type="text" id="examTitle" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Contoh: Penilaian Harian 1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 text-slate-700">Mata Pelajaran</label>
+                        <input type="text" id="examSubject" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Contoh: Matematika Lanjut">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 text-slate-700">Durasi (Menit)</label>
+                        <input type="number" id="examDuration" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Contoh: 90">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 text-slate-700">Total Jumlah Soal</label>
+                        <input type="number" id="examTotalQuestions" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Contoh: 20">
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-4 border-t border-cyan-200/50 pt-6 relative z-10">
+                    <button id="btnSubmitIdentity" class="btn-cyber font-bold py-3 px-8 rounded-xl">
+                        Submit Identitas
+                    </button>
+                    <!-- Tombol Create -->
+                    <button id="btnCreateQuestions" disabled class="btn-cyber font-bold py-3 px-8 rounded-xl flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                        Mulai Buat Soal
+                    </button>
+                    <p id="identityStatusMsg" class="text-sm text-cyan-800 font-bold hidden bg-cyan-200/50 px-4 py-2 rounded-lg border border-cyan-300/60 shadow-sm backdrop-blur-sm">✓ Tersimpan! Silakan klik Mulai Buat Soal.</p>
+                </div>
+            </div>
+
+            <!-- STEP 2: AREA PEMBUATAN SOAL -->
+            <div id="questionEditorArea" class="hidden opacity-0 transition-opacity duration-700">
+                <div class="glass-panel rounded-[1.5rem] p-6 md:p-8 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500"></div>
+                    <div class="cyber-scanner" style="animation-duration: 6s; opacity: 0.4;"></div>
+                    
+                    <h2 class="text-2xl font-black text-slate-800 mb-8 flex items-center relative z-10">
+                        <span class="bg-gradient-to-br from-cyan-500 to-blue-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center mr-4 text-xl shadow-lg border border-cyan-300" id="questionNumberLabel">1</span>
+                        Editor Soal
+                    </h2>
+
+                    <!-- 2.1 Metadata Soal -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8 inner-panel p-6 rounded-2xl shadow-sm relative z-10">
+                        <div>
+                            <label class="block text-xs font-extrabold text-blue-800 uppercase tracking-widest mb-2">Topik</label>
+                            <input type="text" id="topicInput" class="glass-input w-full p-3 rounded-xl text-sm" placeholder="Misal: Kinematika">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-blue-800 uppercase tracking-widest mb-2">Sub Topik</label>
+                            <input type="text" id="subTopicInput" class="glass-input w-full p-3 rounded-xl text-sm" placeholder="Misal: Gerak Lurus">
+                        </div>
+                    </div>
+
+                    <!-- 2.2 Jenis Soal Dropdown -->
+                    <div class="mb-8 relative z-10">
+                        <label class="block text-sm font-bold mb-2 text-slate-800">Pilih Jenis Soal:</label>
+                        <select id="questionTypeSelect" class="glass-input w-full p-4 rounded-xl font-bold text-slate-800 cursor-pointer shadow-sm">
+                            <option value="pg_tunggal">Pilihan Ganda Tunggal (Satu Jawaban Benar)</option>
+                            <option value="pg_majemuk">Pilihan Ganda Majemuk (Checkbox / MCMA)</option>
+                            <option value="kategori">Pilihan Ganda Kategori (Tabel Benar/Salah)</option>
+                            <option value="isian">Isian Singkat</option>
+                            <option value="essay">Essay (Uraian)</option>
+                        </select>
+                    </div>
+
+                    <!-- 2.3 Konten Utama Soal -->
+                    <div class="space-y-6 mb-8 relative z-10">
+                        <!-- Stimulus -->
+                        <div class="inner-panel p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-center mb-4">
+                                <label class="text-base font-bold text-slate-800">Stimulus <span class="text-slate-500 font-normal text-sm">(Opsional)</span></label>
+                                <div class="flex bg-white/50 border border-cyan-200 p-1.5 rounded-lg">
+                                    <button type="button" class="px-4 py-1.5 text-xs font-bold rounded-md bg-white text-blue-600 shadow-sm input-toggle-btn active" data-target="stimulus-text-input" data-group="stimulus">Teks</button>
+                                    <button type="button" class="px-4 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-blue-600 input-toggle-btn" data-target="stimulus-image-input" data-group="stimulus">Gambar</button>
+                                </div>
+                            </div>
+                            <div id="stimulus-text-input" class="input-group-stimulus">
+                                <textarea class="glass-input w-full p-4 rounded-xl font-medium" rows="3" placeholder="Tulis stimulus di sini..."></textarea>
+                            </div>
+                            <div id="stimulus-image-input" class="input-group-stimulus hidden">
+                                <div class="border-2 border-dashed border-cyan-300/60 bg-white/40 p-8 rounded-xl text-center hover:bg-white/60 transition-colors cursor-pointer relative image-upload-container group">
+                                    <div class="upload-placeholder pointer-events-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-cyan-400 group-hover:text-blue-500 transition-colors mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                        <p class="text-sm text-slate-600 font-bold">Klik untuk upload gambar stimulus</p>
+                                    </div>
+                                    <div class="preview-container hidden relative p-2">
+                                        <img src="" class="max-h-48 mx-auto rounded-lg shadow-md preview-image object-contain">
+                                        <button type="button" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-2 remove-image-btn hover:bg-red-600 shadow-lg z-10 transition-transform hover:scale-110">
+                                            <svg class="w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
+                                    </div>
+                                    <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer file-input" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gambar Pendukung -->
+                        <div class="inner-panel p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                            <label class="text-base font-bold text-slate-800 mb-4 block">Gambar Pendukung <span class="text-slate-500 font-normal text-sm">(Opsional)</span></label>
+                            <div class="border-2 border-dashed border-cyan-300/60 bg-white/40 p-6 rounded-xl text-center hover:bg-white/60 transition-colors cursor-pointer relative image-upload-container group">
+                                <div class="upload-placeholder pointer-events-none flex items-center justify-center space-x-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                    <p class="text-sm text-slate-600 font-bold">Upload Gambar Pendukung</p>
+                                </div>
+                                <div class="preview-container hidden relative p-2">
+                                    <img src="" class="max-h-48 mx-auto rounded-lg shadow-md preview-image object-contain">
+                                    <button type="button" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-2 remove-image-btn hover:bg-red-600 shadow-lg z-10 transition-transform hover:scale-110">
+                                        <svg class="w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                                <input type="file" id="supportingImageInputFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer file-input" accept="image/*">
+                            </div>
+                        </div>
+
+                        <!-- Soal / Pernyataan Utama --> 
+                        <div class="border-2 border-cyan-400/50 p-6 rounded-2xl bg-cyan-100/50 shadow-md relative">
+                            <div class="absolute -left-1 top-6 w-2 h-12 bg-cyan-500 rounded-r-lg shadow-[0_0_12px_rgba(0,200,255,0.8)]"></div>
+                            <div class="flex justify-between items-center mb-4 pl-4">
+                                <label class="text-lg font-black text-blue-900">Pertanyaan Utama <span class="text-red-500">*</span></label>
+                                <div class="flex bg-white/60 p-1.5 rounded-lg border border-cyan-200">
+                                    <button type="button" class="px-4 py-1.5 text-xs font-bold rounded-md bg-cyan-500 text-white shadow-sm input-toggle-btn active" data-target="question-text-input" data-group="question">Teks</button>
+                                    <button type="button" class="px-4 py-1.5 text-xs font-bold rounded-md text-slate-600 hover:text-cyan-700 input-toggle-btn" data-target="question-image-input" data-group="question">Gambar</button>
+                                </div>
+                            </div>
+                            <div id="question-text-input" class="input-group-question pl-4">
+                                <textarea id="questionTextArea" class="glass-input w-full p-4 rounded-xl font-semibold text-slate-800" rows="4" placeholder="Tulis inti pertanyaan di sini..."></textarea>
+                            </div>
+                            <div id="question-image-input" class="input-group-question hidden pl-4">
+                                 <div class="border-2 border-dashed border-cyan-400/60 bg-white/50 p-10 rounded-xl text-center hover:bg-white/70 transition-colors cursor-pointer relative image-upload-container group">
+                                    <div class="upload-placeholder pointer-events-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-cyan-500/60 group-hover:text-cyan-600 transition-colors mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                        <p class="text-base text-cyan-700 font-bold">Upload Gambar Soal (Bisa Screenshot)</p>
+                                    </div>
+                                    <div class="preview-container hidden relative p-2">
+                                        <img src="" class="max-h-64 mx-auto rounded-lg shadow-lg preview-image object-contain border border-cyan-200">
+                                        <button type="button" class="absolute -top-4 -right-4 bg-red-500 text-white rounded-full p-2.5 remove-image-btn hover:bg-red-600 shadow-xl z-10 transition-transform hover:scale-110">
+                                            <svg class="w-5 h-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
+                                    </div>
+                                    <input type="file" id="questionImageInputFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer file-input" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2.4 AREA OPSI JAWABAN (DINAMIS) -->
+                    <div class="mb-10 relative z-10">
+                        <h3 class="text-xl font-extrabold text-slate-800 mb-5 pb-3 border-b-2 border-cyan-200/50 flex justify-between items-center">
+                            <span>Opsi Jawaban</span>
+                            <div id="pgControls" class="flex items-center text-sm space-x-3 hidden">
+                                <span class="text-sky-800 mr-2 font-bold bg-white/60 border border-cyan-200 px-3 py-1.5 rounded-lg">Jumlah: <span id="optionCountLabel" class="text-blue-700">5</span></span>
+                                <button type="button" id="btnRemoveOption" class="w-10 h-10 rounded-xl bg-red-100 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center font-bold text-2xl focus:outline-none transition-colors shadow-sm" title="Kurangi Opsi">-</button>
+                                <button type="button" id="btnAddOption" class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-700 hover:bg-cyan-500 hover:text-white flex items-center justify-center font-bold text-2xl focus:outline-none transition-colors shadow-sm" title="Tambah Opsi">+</button>
+                            </div>
+                        </h3>
+                        <div id="dynamicOptionsContainer" class="space-y-4"></div>
+                    </div>
+
+                    <!-- 2.5 AREA KUNCI JAWABAN -->
+                    <div class="mb-8 mt-12 relative z-10"> 
+                         <h3 class="text-lg font-black text-slate-800 mb-4 flex items-center">
+                             <div class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center mr-3 shadow-sm border border-green-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                             </div>
+                             Penetapan Kunci Jawaban <span class="text-red-500 ml-1.5">*</span>
+                         </h3>
+                         <div class="inner-panel p-6 rounded-[1.5rem] border-2 border-green-300/50 shadow-sm bg-gradient-to-br from-white/60 to-green-50/40">
+                             <div id="dynamicAnswerKeyContainer"></div>
+                         </div>
+                    </div>
+
+                    <!-- TOMBOL SUBMIT AKHIR -->
+                    <div class="mt-10 pt-8 border-t border-cyan-200/50 flex flex-col items-end relative z-10">
+                         <button id="btnSubmitFinalQuestion" disabled class="btn-cyber-disabled font-black py-4 px-10 rounded-2xl text-lg flex items-center justify-center transition-all duration-300">
+                             <span>Simpan & Lanjut Soal Berikutnya</span> 
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                        </button>
+                        <p class="text-sm text-sky-700 mt-3 font-semibold bg-white/50 px-4 py-1.5 rounded-lg border border-cyan-200/50">*Tombol otomatis aktif jika Topik, Soal, & Kunci sudah terisi.</p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB: EXAM PREVIEWER / HISTORI ================= -->
+        <div id="tabPreviewer" class="tab-content glass-panel rounded-[1.5rem] p-8 min-h-[400px]">
+            <h2 class="text-2xl font-black text-slate-800 mb-6 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                Dashboard Histori Ujian
+            </h2>
+            <div id="previewStatusContainer">
+                <div class="text-center text-slate-500 py-20 bg-white/40 rounded-2xl border-2 border-dashed border-cyan-300 backdrop-blur-sm">
+                    <svg class="animate-spin h-12 w-12 mx-auto text-cyan-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="font-bold text-xl text-slate-600">Memuat Histori...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    </div>
+
+    <!-- ================= JAVASCRIPT & BACKEND INTEGRATION ================= -->
+    <script>
+        // --- API URL DARI GOOGLE APPS SCRIPT ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoiGCoEl-mktO9pQtQxDXHIixp-eqToLUIfr10DgazZnu8y0AErvE5ju2UShC_xPuncg/exec';
+
+        let currentOptionsList = ['A', 'B', 'C', 'D', 'E']; 
+        const MAX_OPTIONS = 8;
+        const MIN_OPTIONS = 2;
+
+        let globalIdUjian = '';
+        let globalTargetSoal = 0;
+        let savedQuestionsCount = 0; 
+        let totalExamQuestions = 0;
+        
+        // VARIABEL GLOBAL BARU UNTUK NAMA GURU
+        let globalNamaGuru = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // --- FUNGSI TOAST ---
+            function showToast(message, isSuccess = false) {
+                const toast = document.getElementById('toast');
+                toast.innerHTML = message.replace(/\n/g, '<br>');
+                
+                if(isSuccess) {
+                    toast.classList.add('bg-green-500/90');
+                    toast.classList.remove('bg-red-500/90', 'bg-cyan-600/90');
+                } else if(message.includes("Memproses") || message.includes("Membuat PDF")) {
+                     toast.classList.add('bg-cyan-600/90');
+                     toast.classList.remove('bg-red-500/90', 'bg-green-500/90');
+                } else {
+                    toast.classList.add('bg-red-500/90');
+                    toast.classList.remove('bg-green-500/90', 'bg-cyan-600/90');
+                }
+
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+                    toast.classList.add('translate-y-0', 'opacity-100');
+                }, 10);
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-[-20px]', 'opacity-0');
+                    setTimeout(() => { toast.style.display = 'none'; }, 300); 
+                }, 5000);
+            }
+
+            // --- AUTO RETRY FETCH ---
+            async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const response = await fetch(url, options);
+                        if (!response.ok) throw new Error('Respon Jaringan Tidak Valid');
+                        return response;
+                    } catch (err) {
+                        if (i === retries - 1) throw err; 
+                        console.warn(`Koneksi kedip. Mencoba ulang... (${i + 1}/${retries})`);
+                        await new Promise(res => setTimeout(res, delay)); 
+                    }
+                }
+            }
+
+            // --- CANVAS COMPRESSOR ---
+            function compressImageToBase64(file, maxWidth = 500, quality = 0.5) {
+                return new Promise((resolve, reject) => {
+                    if (!file) return resolve('');
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
+                            } else {
+                                if (height > maxWidth) { width *= maxWidth / height; height = maxWidth; }
+                            }
+
+                            canvas.width = width; canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, width, height);
+                            ctx.drawImage(img, 0, 0, width, height);
+                            resolve(canvas.toDataURL('image/jpeg', quality));
+                        };
+                        img.onerror = () => resolve('');
+                    };
+                    reader.onerror = () => resolve('');
+                });
+            }
+
+            // --- 0. LOGIN ---
+            const loginForm = document.getElementById('loginForm');
+            const loginContainer = document.getElementById('loginContainer');
+            const appContainer = document.getElementById('appContainer');
+            const btnLogout = document.getElementById('btnLogout');
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = loginForm.querySelector('button[type="submit"]');
+                const originalText = btn.innerText;
+                btn.innerText = 'Memeriksa ke Database...'; btn.disabled = true;
+
+                try {
+                    const response = await fetchWithRetry(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'login', username: document.getElementById('username').value, password: document.getElementById('password').value })
+                    });
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        // SIMPAN NAMA GURU SETELAH BERHASIL LOGIN
+                        globalNamaGuru = result.data.nama;
+                        document.getElementById('userGreeting').innerText = 'Selamat datang, ' + globalNamaGuru + '!';
+                        
+                        loginContainer.classList.add('hidden');
+                        appContainer.classList.remove('hidden');
+                        window.scrollTo(0,0);
+                        showToast('Berhasil Login!', true);
+                    } else {
+                        showToast('Gagal: ' + result.message);
+                    }
+                } catch (error) {
+                    showToast('Terjadi kesalahan jaringan/server.\nDetail: ' + error.message);
+                } finally {
+                    btn.innerText = originalText; btn.disabled = false;
+                }
+            });
+
+            btnLogout.addEventListener('click', function() {
+                appContainer.classList.add('hidden');
+                loginContainer.classList.remove('hidden');
+                loginForm.reset();
+                globalNamaGuru = ''; // Bersihkan memori nama guru
+            });
+
+            // --- 1. TAB SYSTEM ---
+            const tabBtnInputer = document.getElementById('tabBtnInputer');
+            const tabBtnPreviewer = document.getElementById('tabBtnPreviewer');
+            const tabInputerContent = document.getElementById('tabInputer');
+            const tabPreviewerContent = document.getElementById('tabPreviewer');
+
+            function switchTab(activeBtn, inactiveBtn, activeContent, inactiveContent) {
+                activeBtn.classList.add('active', 'text-sky-800', 'bg-white/90', 'shadow-sm');
+                activeBtn.classList.remove('text-white/80', 'bg-transparent');
+                inactiveBtn.classList.remove('active', 'text-sky-800', 'bg-white/90', 'shadow-sm');
+                inactiveBtn.classList.add('text-white/80', 'bg-transparent');
+                
+                inactiveContent.classList.remove('active');
+                setTimeout(() => activeContent.classList.add('active'), 50); 
+            }
+
+            tabBtnInputer.addEventListener('click', () => switchTab(tabBtnInputer, tabBtnPreviewer, tabInputerContent, tabPreviewerContent));
+            
+            // SAAT TAB PREVIEW DIKLIK -> PANGGIL FUNGSI LOAD HISTORY
+            tabBtnPreviewer.addEventListener('click', () => {
+                switchTab(tabBtnPreviewer, tabBtnInputer, tabPreviewerContent, tabInputerContent);
+                loadExamHistory(); 
+            });
+
+            // --- 2. IDENTITAS ---
+            const btnSubmitIdentity = document.getElementById('btnSubmitIdentity');
+            const btnCreateQuestions = document.getElementById('btnCreateQuestions');
+            const identityInputs = document.querySelectorAll('#identityFormContainer input, #identityFormContainer select');
+            const identityStatusMsg = document.getElementById('identityStatusMsg');
+            const questionEditorArea = document.getElementById('questionEditorArea');
+
+            btnSubmitIdentity.addEventListener('click', async function() {
+                let allFilled = true;
+                identityInputs.forEach(input => { if(input.value.trim() === '') allFilled = false; });
+                if(!allFilled) { showToast('Lengkapi data identitas ujian dulu ya.'); return; }
+
+                const originalText = this.innerText;
+                this.innerText = 'Menyimpan...'; this.disabled = true;
+                identityInputs.forEach(input => { input.disabled = true; input.classList.add('opacity-70', 'cursor-not-allowed'); });
+
+                try {
+                    totalExamQuestions = parseInt(document.getElementById('examTotalQuestions').value) || 0;
+
+                    const payload = {
+                        action: 'save_identity',
+                        namaGuru: globalNamaGuru, // MENGIRIM NAMA GURU
+                        jenisUjian: document.getElementById('examType').value,
+                        judulUjian: document.getElementById('examTitle').value,
+                        mataPelajaran: document.getElementById('examSubject').value,
+                        durasi: document.getElementById('examDuration').value,
+                        totalSoal: document.getElementById('examTotalQuestions').value
+                    };
+
+                    const response = await fetchWithRetry(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        globalIdUjian = result.idUjian; 
+                        globalTargetSoal = parseInt(payload.totalSoal);
+                        
+                        this.style.display = 'none'; 
+                        btnCreateQuestions.disabled = false;
+                        btnCreateQuestions.classList.remove('btn-cyber-disabled'); btnCreateQuestions.classList.add('btn-cyber');
+                        identityStatusMsg.classList.remove('hidden');
+                        validateForm(); 
+                    } else {
+                        showToast('Gagal: ' + result.message);
+                        this.innerText = originalText; this.disabled = false;
+                        identityInputs.forEach(input => { input.disabled = false; input.classList.remove('opacity-70', 'cursor-not-allowed'); });
+                    }
+                } catch (error) {
+                    showToast('Terjadi kesalahan jaringan.\nDetail: ' + error.message);
+                    this.innerText = originalText; this.disabled = false;
+                    identityInputs.forEach(input => { input.disabled = false; input.classList.remove('opacity-70', 'cursor-not-allowed'); });
+                }
+            });
+
+            btnCreateQuestions.addEventListener('click', function() {
+                questionEditorArea.classList.remove('hidden');
+                setTimeout(() => questionEditorArea.classList.remove('opacity-0'), 50);
+                questionEditorArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                this.style.display = 'none'; 
+                renderQuestionUI('pg_tunggal');
+            });
+
+
+            // --- 3. TOGGLE GAMBAR/TEKS & ENGINE FORM SOAL DINAMIS (Tidak ada perubahan) ---
+            document.body.addEventListener('click', function(e) {
+                if (e.target && e.target.classList && e.target.classList.contains('input-toggle-btn')) {
+                    const targetId = e.target.getAttribute('data-target');
+                    const groupName = e.target.getAttribute('data-group');
+
+                    const groupButtons = document.querySelectorAll(`.input-toggle-btn[data-group="${groupName}"]`);
+                    groupButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-cyan-500', 'bg-white', 'text-white', 'text-blue-600', 'shadow-sm');
+                        btn.classList.add('text-slate-500', 'hover:text-blue-600', 'bg-transparent');
+                    });
+                    
+                    if(groupName === 'question') { e.target.classList.add('active', 'bg-cyan-500', 'text-white', 'shadow-sm'); } 
+                    else { e.target.classList.add('active', 'bg-white', 'text-blue-600', 'shadow-sm'); }
+                    e.target.classList.remove('text-slate-500', 'hover:text-blue-600', 'bg-transparent');
+
+                    const groupInputs = document.querySelectorAll(`.input-group-${groupName}`);
+                    groupInputs.forEach(input => input.classList.add('hidden'));
+
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) targetElement.classList.remove('hidden');
+                    validateForm(); 
+                }
+
+                const removeBtn = e.target.closest('.remove-image-btn');
+                if(removeBtn) {
+                    e.preventDefault(); e.stopPropagation();
+                    const container = removeBtn.closest('.image-upload-container');
+                    const fileInput = container.querySelector('.file-input');
+                    const placeholder = container.querySelector('.upload-placeholder');
+                    const previewContainer = container.querySelector('.preview-container');
+                    
+                    fileInput.value = ''; container.querySelector('.preview-image').src = '';
+                    fileInput.classList.remove('hidden'); previewContainer.classList.add('hidden');
+                    placeholder.classList.remove('hidden'); validateForm();
+                }
+            });
+
+            document.body.addEventListener('change', function(e) {
+                if(e.target.classList.contains('file-input')) {
+                    const file = e.target.files[0];
+                    const container = e.target.closest('.image-upload-container');
+                    if(!container || !file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        container.querySelector('.preview-image').src = evt.target.result;
+                        container.querySelector('.upload-placeholder').classList.add('hidden');
+                        container.querySelector('.preview-container').classList.remove('hidden');
+                        e.target.classList.add('hidden'); validateForm();
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            const questionTypeSelect = document.getElementById('questionTypeSelect');
+            const dynamicOptionsContainer = document.getElementById('dynamicOptionsContainer');
+            const dynamicAnswerKeyContainer = document.getElementById('dynamicAnswerKeyContainer');
+            const pgControls = document.getElementById('pgControls');
+            const optionCountLabel = document.getElementById('optionCountLabel');
+
+            questionTypeSelect.addEventListener('change', function(e) { renderQuestionUI(e.target.value); });
+
+            function renderQuestionUI(type) {
+                dynamicOptionsContainer.innerHTML = ''; dynamicAnswerKeyContainer.innerHTML = ''; 
+                if(type === 'pg_tunggal' || type === 'pg_majemuk') { pgControls.classList.remove('hidden'); updateOptionCountLabel(); } 
+                else { pgControls.classList.add('hidden'); }
+
+                switch(type) {
+                    case 'pg_tunggal': case 'pg_majemuk': renderPGOptionInputs(); renderPGAnswerKeyInput(type === 'pg_tunggal' ? 'radio' : 'checkbox'); break;
+                    case 'kategori': renderKategoriTableInput(); renderKategoriAnswerKeyInput(); break;
+                    case 'isian': dynamicOptionsContainer.innerHTML = `<div class="p-6 bg-white/60 rounded-2xl text-center text-sky-700 font-bold border-2 border-dashed border-cyan-300 shadow-sm">Soal Isian Singkat.</div>`; renderIsianSingkatKeyInput(); break;
+                    case 'essay': dynamicOptionsContainer.innerHTML = `<div class="p-6 bg-white/60 rounded-2xl text-center text-sky-700 font-bold border-2 border-dashed border-cyan-300 shadow-sm">Soal Essay.</div>`; renderEssayKeyInput(); break;
+                }
+                validateForm(); 
+            }
+
+            function updateOptionCountLabel() { optionCountLabel.innerText = currentOptionsList.length; }
+
+            function renderPGOptionInputs() {
+                dynamicOptionsContainer.innerHTML = '';
+                currentOptionsList.forEach(optLabel => {
+                    const html = `
+                        <div class="flex items-start space-x-4 inner-panel p-5 rounded-2xl shadow-sm relative group hover:border-cyan-400/60 hover:shadow-md transition-all">
+                            <span class="font-black text-2xl text-cyan-600 pt-2 w-10 select-none">${optLabel}.</span>
+                            <div class="flex-grow">
+                                <div class="flex justify-end mb-3">
+                                      <div class="flex bg-white/50 border border-cyan-200 p-1.5 rounded-lg">
+                                        <button type="button" class="px-3 py-1.5 text-xs font-bold rounded-md bg-white text-blue-600 shadow-sm input-toggle-btn active" data-target="opt-${optLabel}-text" data-group="opt-${optLabel}">Teks</button>
+                                        <button type="button" class="px-3 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-blue-600 input-toggle-btn" data-target="opt-${optLabel}-image" data-group="opt-${optLabel}">Gambar</button>
+                                    </div>
+                                </div>
+                                <div id="opt-${optLabel}-text" class="input-group-opt-${optLabel}"><textarea class="glass-input w-full p-4 rounded-xl text-sm font-medium" rows="1" placeholder="Teks opsi ${optLabel}..."></textarea></div>
+                                <div id="opt-${optLabel}-image" class="input-group-opt-${optLabel} hidden">
+                                    <div class="border-2 border-dashed border-cyan-300/60 bg-white/40 p-6 rounded-xl text-center hover:bg-white/60 transition cursor-pointer relative image-upload-container">
+                                        <div class="upload-placeholder pointer-events-none text-sm text-cyan-700 font-bold">Klik upload gambar opsi ${optLabel}</div>
+                                        <div class="preview-container hidden relative p-1">
+                                            <img src="" class="max-h-32 mx-auto rounded-lg shadow-sm preview-image object-contain border border-cyan-200">
+                                            <button type="button" class="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1.5 remove-image-btn"><svg class="w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                                        </div>
+                                        <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer file-input" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    dynamicOptionsContainer.insertAdjacentHTML('beforeend', html);
+                });
+            }
+
+            function renderPGAnswerKeyInput(inputType) {
+                let html = '<div class="flex flex-wrap gap-4">';
+                currentOptionsList.forEach(optLabel => {
+                    const style = inputType === 'radio' ? 'form-radio rounded-full' : 'form-checkbox rounded-md';
+                    const name = inputType === 'radio' ? 'name="pg_key"' : '';
+                    html += `<label class="inline-flex items-center p-4 border border-green-300/60 bg-white/80 rounded-xl cursor-pointer hover:bg-white hover:border-green-400 shadow-sm"><input type="${inputType}" ${name} value="${optLabel}" class="${style} h-6 w-6 text-green-500 border-green-300 focus:ring-green-400 key-input-element"><span class="ml-3 font-extrabold text-lg text-slate-700 select-none">Opsi ${optLabel}</span></label>`;
+                });
+                dynamicAnswerKeyContainer.innerHTML = html + '</div>';
+            }
+
+            document.getElementById('btnAddOption').addEventListener('click', function() { if(currentOptionsList.length < MAX_OPTIONS) { currentOptionsList.push(String.fromCharCode('A'.charCodeAt(0) + currentOptionsList.length)); renderQuestionUI(questionTypeSelect.value); } });
+            document.getElementById('btnRemoveOption').addEventListener('click', function() { if(currentOptionsList.length > MIN_OPTIONS) { currentOptionsList.pop(); renderQuestionUI(questionTypeSelect.value); } });
+
+            function renderKategoriTableInput() {
+                dynamicOptionsContainer.innerHTML = `
+                    <div class="overflow-hidden rounded-2xl border border-cyan-200 shadow-sm">
+                        <table class="min-w-full border-collapse bg-white/60" id="kategoriTableInput">
+                            <thead><tr class="bg-cyan-100/50 text-slate-700 text-base border-b border-cyan-200"><th class="p-4 text-left w-1/2 font-black">Pernyataan / Soal</th><th class="p-4 text-center border-l border-cyan-200"><input type="text" value="Benar" class="bg-transparent text-center font-black focus:outline-none w-24 kat-header-input"></th><th class="p-4 text-center border-l border-cyan-200"><input type="text" value="Salah" class="bg-transparent text-center font-black focus:outline-none w-24 kat-header-input"></th><th class="p-4 text-center border-l border-cyan-200 w-12"></th></tr></thead>
+                            <tbody>${getKategoriRowHTML(1)}</tbody>
+                        </table>
+                    </div>
+                    <button type="button" id="btnAddTableRow" class="mt-4 text-sm flex items-center text-white bg-cyan-500 hover:bg-cyan-600 font-bold px-4 py-2 rounded-xl shadow-md">+ Tambah Baris</button>
+                `;
+                document.getElementById('btnAddTableRow').addEventListener('click', () => { document.querySelector('#kategoriTableInput tbody').insertAdjacentHTML('beforeend', getKategoriRowHTML(Date.now())); });
+                document.querySelector('#kategoriTableInput').addEventListener('click', e => { if(e.target.closest('.delete-row-btn')) { if(document.querySelector('#kategoriTableInput tbody').rows.length > 1) { e.target.closest('tr').remove(); renderKategoriAnswerKeyInput(); } } });
+                document.querySelector('#kategoriTableInput').addEventListener('input', e => { if(e.target.classList.contains('kat-statement-input') || e.target.classList.contains('kat-header-input')) { renderKategoriAnswerKeyInput(); } });
+            }
+
+            function getKategoriRowHTML(id) {
+                return `<tr class="border-b border-cyan-100/50 hover:bg-white/80"><td class="p-3"><textarea class="glass-input w-full p-3 rounded-xl text-sm font-medium kat-statement-input" rows="1" placeholder="Tulis pernyataan..."></textarea></td><td class="p-3 border-l border-cyan-100/50"></td><td class="p-3 border-l border-cyan-100/50"></td><td class="p-3 border-l border-cyan-100/50 text-center"><button type="button" class="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg delete-row-btn"><svg class="w-6 h-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></td></tr>`;
+            }
+
+            function renderKategoriAnswerKeyInput() {
+                const headers = Array.from(document.querySelectorAll('.kat-header-input')).map(i => i.value || '-');
+                const stmts = Array.from(document.querySelectorAll('.kat-statement-input')).map(i => i.value || '...');
+                let html = `<div class="overflow-hidden rounded-2xl border border-green-300 shadow-md bg-white/80"><table class="min-w-full"><thead><tr class="bg-green-100/80 text-xs text-green-700 uppercase font-black border-b border-green-200"><th class="p-4 text-left">Pernyataan</th><th class="p-4 text-center">${headers[0]}</th><th class="p-4 text-center">${headers[1]}</th></tr></thead><tbody>`;
+                stmts.forEach((stmt, idx) => { html += `<tr class="border-b border-green-50"><td class="p-4 text-sm font-bold text-slate-700">${stmt}</td><td class="p-4 text-center"><input type="checkbox" name="kat_k_${idx}" value="${headers[0]}" class="form-checkbox h-6 w-6 text-green-500 focus:ring-green-400 key-input-element rounded-md"></td><td class="p-4 text-center"><input type="checkbox" name="kat_k_${idx}" value="${headers[1]}" class="form-checkbox h-6 w-6 text-green-500 focus:ring-green-400 key-input-element rounded-md"></td></tr>`; });
+                dynamicAnswerKeyContainer.innerHTML = html + `</tbody></table></div>`;
+            }
+
+            function renderIsianSingkatKeyInput() { dynamicAnswerKeyContainer.innerHTML = `<input type="text" class="w-full p-4 bg-white/90 border border-green-300 rounded-xl key-input-element font-bold text-lg text-slate-800" placeholder="Ketik kunci jawaban singkat di sini...">`; }
+            function renderEssayKeyInput() { dynamicAnswerKeyContainer.innerHTML = `<textarea class="w-full p-4 bg-white/90 border border-green-300 rounded-xl key-input-element font-semibold text-slate-800" rows="5" placeholder="Tuliskan rubrik jawaban di sini..."></textarea>`; }
+
+            // --- VALIDATION & SUBMIT SOAL ---
+            const btnSubmitFinal = document.getElementById('btnSubmitFinalQuestion');
+            const editorArea = document.getElementById('questionEditorArea');
+
+            function validateForm() {
+                let isValid = false;
+                const topic = document.getElementById('topicInput').value.trim();
+                const qContent = document.querySelector('[data-target="question-text-input"]').classList.contains('active') ? document.getElementById('questionTextArea').value.trim() : document.getElementById('questionImageInputFile').value;
+                const keys = document.querySelectorAll('.key-input-element');
+                let keyFilled = false;
+                if(keys.length > 0) { keys.forEach(k => { if((k.type === 'radio' || k.type === 'checkbox') && k.checked) keyFilled = true; if((k.type === 'text' || k.tagName === 'TEXTAREA') && k.value.trim() !== '') keyFilled = true; }); } else { keyFilled = true; }
+
+                if(topic !== '' && qContent !== '' && keyFilled) isValid = true;
+
+                if (savedQuestionsCount + 1 >= globalTargetSoal && globalTargetSoal > 0) btnSubmitFinal.querySelector('span').innerText = 'Simpan & Proses Finalisasi';
+                else btnSubmitFinal.querySelector('span').innerText = 'Simpan & Lanjut Soal Berikutnya';
+
+                if(isValid) { btnSubmitFinal.disabled = false; btnSubmitFinal.classList.remove('btn-cyber-disabled'); btnSubmitFinal.classList.add('btn-cyber'); } 
+                else { btnSubmitFinal.disabled = true; btnSubmitFinal.classList.add('btn-cyber-disabled'); btnSubmitFinal.classList.remove('btn-cyber'); }
+            }
+
+            editorArea.addEventListener('input', validateForm); editorArea.addEventListener('change', validateForm);
+
+            async function getQuestionData() {
+                const type = document.getElementById('questionTypeSelect').value;
+                let dataOpsi = {}; let kunciJawaban = [];
+                let stimulusVal = '';
+                if (document.querySelector('[data-target="stimulus-text-input"]').classList.contains('active')) stimulusVal = document.querySelector('#stimulus-text-input textarea').value;
+                else { const base64 = await compressImageToBase64(document.querySelector('#stimulus-image-input .file-input').files[0], 500, 0.5); if(base64) stimulusVal = `<img src="${base64}" alt="Stimulus" class="max-w-full h-auto rounded-lg mt-2 mb-2">`; }
+
+                let soalUtamaVal = '';
+                if (document.querySelector('[data-target="question-text-input"]').classList.contains('active')) soalUtamaVal = document.getElementById('questionTextArea').value;
+                else { const base64 = await compressImageToBase64(document.getElementById('questionImageInputFile').files[0], 500, 0.5); if(base64) soalUtamaVal = `<img src="${base64}" alt="Soal" class="max-w-full h-auto rounded-lg mt-2 mb-2">`; }
+
+                const urlGambarVal = await compressImageToBase64(document.getElementById('supportingImageInputFile').files[0], 500, 0.5);
+
+                if (type === 'pg_tunggal' || type === 'pg_majemuk') {
+                    for (const opt of currentOptionsList) {
+                        if (document.querySelector(`[data-target="opt-${opt}-text"]`).classList.contains('active')) dataOpsi[opt] = document.querySelector(`#opt-${opt}-text textarea`).value;
+                        else { const base64 = await compressImageToBase64(document.querySelector(`#opt-${opt}-image .file-input`).files[0], 300, 0.4); dataOpsi[opt] = base64 ? `<img src="${base64}" alt="Opsi" class="max-h-24 h-auto rounded-md">` : ''; }
+                    }
+                    document.querySelectorAll('.key-input-element:checked').forEach(k => kunciJawaban.push(k.value));
+                } else if (type === 'kategori') {
+                    const headers = Array.from(document.querySelectorAll('.kat-header-input')).map(i => i.value);
+                    const stmts = Array.from(document.querySelectorAll('.kat-statement-input')).map(i => i.value);
+                    dataOpsi = { headers, statements: stmts };
+                    stmts.forEach((stmt, idx) => { let rowAns = []; document.querySelectorAll(`input[name="kat_k_${idx}"]:checked`).forEach(k => rowAns.push(k.value)); kunciJawaban.push({ pernyataan: stmt, jawaban: rowAns }); });
+                } else { kunciJawaban = document.querySelector('.key-input-element').value; }
+
+                return { action: 'save_question', idUjian: globalIdUjian, nomorSoal: savedQuestionsCount + 1, tipeSoal: type, topik: document.getElementById('topicInput').value, subTopik: document.getElementById('subTopicInput').value, stimulus: stimulusVal, soalUtama: soalUtamaVal, dataOpsi: JSON.stringify(dataOpsi), kunciJawaban: typeof kunciJawaban === 'string' ? kunciJawaban : JSON.stringify(kunciJawaban), urlGambar: urlGambarVal };
+            }
+
+            btnSubmitFinal.addEventListener('click', async function() {
+                const originalText = this.querySelector('span').innerText;
+                this.querySelector('span').innerText = 'Mengirim...'; this.disabled = true;
+
+                try {
+                    const payload = await getQuestionData();
+                    const response = await fetchWithRetry(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    const result = await response.json();
+
+                    if(result.status === 'success') {
+                        savedQuestionsCount++;
+                        
+                        document.getElementById('topicInput').value = ''; document.getElementById('subTopicInput').value = ''; document.getElementById('questionTextArea').value = '';
+                        const stimulusTextArea = document.querySelector('#stimulus-text-input textarea'); if(stimulusTextArea) stimulusTextArea.value = '';
+                        document.querySelectorAll('.remove-image-btn').forEach(btn => btn.click());
+                        document.getElementById('questionTypeSelect').value = 'pg_tunggal'; currentOptionsList = ['A', 'B', 'C', 'D', 'E']; renderQuestionUI('pg_tunggal');
+                        
+                        if (savedQuestionsCount >= totalExamQuestions) {
+                            document.getElementById('questionEditorArea').classList.add('hidden', 'opacity-0');
+                            tabBtnPreviewer.click(); // Langsung pindah ke histori
+                            showToast("Input Selesai! Me-reset form...", true);
+
+                            setTimeout(() => {
+                                identityInputs.forEach(input => { input.value = ''; input.disabled = false; input.classList.remove('opacity-70', 'cursor-not-allowed'); });
+                                btnSubmitIdentity.style.display = 'block'; btnSubmitIdentity.innerText = 'Submit Identitas'; btnSubmitIdentity.disabled = false;
+                                btnCreateQuestions.style.display = 'flex'; btnCreateQuestions.disabled = true; btnCreateQuestions.classList.remove('btn-cyber'); btnCreateQuestions.classList.add('btn-cyber-disabled');
+                                identityStatusMsg.classList.add('hidden');
+                                globalIdUjian = ''; globalTargetSoal = 0; savedQuestionsCount = 0; totalExamQuestions = 0;
+                            }, 4000);
+                        } else {
+                            document.getElementById('questionNumberLabel').innerText = savedQuestionsCount + 1; validateForm(); 
+                            showToast(`Soal ${savedQuestionsCount} berhasil disimpan!`, true);
+                            document.getElementById('questionEditorArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    } else { showToast('Gagal: ' + result.message); this.querySelector('span').innerText = originalText; this.disabled = false; }
+                } catch (err) { showToast('Error Jaringan: ' + err.message); this.querySelector('span').innerText = originalText; this.disabled = false; }
+            });
+
+            // =========================================================================
+            //  FITUR BARU: LOAD HISTORY & GENERATE PDF
+            // =========================================================================
+
+            async function loadExamHistory() {
+                const container = document.getElementById('previewStatusContainer');
+                
+                // Animasi Loading
+                container.innerHTML = `
+                    <div class="text-center text-slate-500 py-20 bg-white/40 rounded-2xl border-2 border-dashed border-cyan-300 backdrop-blur-sm">
+                        <svg class="animate-spin h-12 w-12 mx-auto text-cyan-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <p class="font-bold text-xl text-slate-600">Menarik Histori Ujian Anda...</p>
+                    </div>`;
+
+                try {
+                    const response = await fetchWithRetry(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'get_history', namaGuru: globalNamaGuru })
+                    });
+                    const result = await response.json();
+
+                    if(result.status === 'success') {
+                        const history = result.data;
+                        if(history.length === 0) {
+                            container.innerHTML = `
+                                <div class="text-center text-slate-500 py-20 bg-white/40 rounded-2xl border-2 border-dashed border-cyan-300 backdrop-blur-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto text-slate-300 mb-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    <p class="font-bold text-xl text-slate-600">Belum ada riwayat ujian.</p>
+                                    <p class="text-base mt-2 text-sky-600/80">Silakan buat ujian baru di tab Exam Inputer.</p>
+                                </div>`;
+                        } else {
+                            // Render Daftar Kartu Histori
+                            let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+                            history.forEach(item => {
+                                html += `
+                                    <div class="inner-panel rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border-l-4 border-l-cyan-500 flex flex-col justify-between bg-white/70">
+                                        <div>
+                                            <div class="flex justify-between items-start mb-2">
+                                                <span class="bg-cyan-100 text-cyan-800 text-xs font-black px-3 py-1 rounded-full border border-cyan-200">${item.jenisUjian || 'UJIAN'}</span>
+                                                <span class="text-xs font-bold text-slate-400">${item.waktuDibuat}</span>
+                                            </div>
+                                            <h3 class="text-xl font-extrabold text-slate-800 mb-1 leading-tight">${item.judulUjian}</h3>
+                                            <p class="text-sm font-bold text-blue-600 mb-4">${item.mataPelajaran}</p>
+                                            
+                                            <div class="flex space-x-4 mb-6 text-sm font-semibold text-slate-600 bg-white/50 p-3 rounded-xl border border-slate-100">
+                                                <div class="flex items-center"><svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> ${item.durasi} mnt</div>
+                                                <div class="flex items-center"><svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> ${item.totalSoal} Soal</div>
+                                            </div>
+                                        </div>
+                                        <button onclick="generatePDF('${item.idUjian}')" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex justify-center items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                            Buat PDF Soal
+                                        </button>
+                                    </div>
+                                `;
+                            });
+                            html += '</div>';
+                            container.innerHTML = html;
+                        }
+                    } else {
+                        showToast("Gagal memuat histori: " + result.message);
+                    }
+                } catch (error) {
+                    showToast("Error Jaringan saat memuat histori.");
+                }
+            }
+
+            // MENGHUBUNGKAN FUNGSI KE WINDOW AGAR BISA DIPANGGIL DARI ONCLICK BUTTON
+            window.generatePDF = async function(idUjian) {
+                showToast("Membuat PDF... Menarik data soal, harap tunggu.", false);
+                
+                try {
+                    const response = await fetchWithRetry(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'get_exam_data', idUjian: idUjian })
+                    });
+                    const result = await response.json();
+
+                    if(result.status === 'success') {
+                        const identitas = result.identitas;
+                        const soalList = result.soal;
+                        
+                        // Siapkan jendela baru
+                        const printWindow = window.open('', '_blank');
+                        
+                        // Bangun struktur HTML khusus untuk Print (Kertas A4 Putih Bersih) - MODERN PREMIUM DESIGN
+                        let html = `
+                        <!DOCTYPE html>
+                        <html lang="id">
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>${identitas.judulUjian} - PDF</title>
+                            <style>
+                                @page { size: A4; margin: 20mm; }
+                                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+                                
+                                body { 
+                                    font-family: 'Plus Jakarta Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+                                    color: #1e293b; 
+                                    line-height: 1.6; 
+                                    font-size: 11pt; 
+                                    background-color: #fff;
+                                }
+                                * { box-sizing: border-box; }
+                                
+                                .header-container {
+                                    text-align: center;
+                                    margin-bottom: 25px;
+                                    padding-bottom: 15px;
+                                    border-bottom: 3px solid #0ab8d4;
+                                    position: relative;
+                                }
+                                .header-container::after {
+                                    content: '';
+                                    position: absolute;
+                                    bottom: -6px;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 1px;
+                                    background-color: #94a3b8;
+                                }
+                                .header-container h1 { 
+                                    margin: 0; 
+                                    font-size: 18pt; 
+                                    text-transform: uppercase; 
+                                    color: #0284c7; 
+                                    letter-spacing: 2px;
+                                    font-weight: 800;
+                                }
+                                .header-container h2 { 
+                                    margin: 5px 0 0 0; 
+                                    font-size: 14pt; 
+                                    font-weight: 600;
+                                    color: #334155; 
+                                }
+                                
+                                .info-wrapper {
+                                    background-color: #f8fafc;
+                                    border: 1px solid #e2e8f0;
+                                    border-radius: 8px;
+                                    padding: 15px;
+                                    margin-bottom: 30px;
+                                }
+                                .info-table { width: 100%; font-size: 10.5pt; }
+                                .info-table td { padding: 5px 8px; vertical-align: bottom; }
+                                .label-td { font-weight: 600; color: #475569; width: 18%; }
+                                .colon-td { width: 2%; font-weight: bold; color: #94a3b8; }
+                                .val-td { width: 30%; font-weight: 800; color: #0f172a; border-bottom: 1px dashed #cbd5e1; }
+                                .val-td-empty { width: 30%; border-bottom: 1px dashed #cbd5e1; }
+                                
+                                .question-block { 
+                                    margin-bottom: 30px; 
+                                    page-break-inside: avoid; 
+                                    position: relative;
+                                }
+                                .q-number { 
+                                    position: absolute;
+                                    left: 0;
+                                    top: 0;
+                                    width: 28px; 
+                                    height: 28px;
+                                    background-color: #e0f2fe;
+                                    color: #0369a1;
+                                    font-weight: 800;
+                                    border-radius: 6px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    text-align: center;
+                                    border: 1px solid #bae6fd;
+                                }
+                                .q-content { margin-left: 45px; }
+                                .q-image { max-width: 400px; max-height: 300px; display: block; margin: 12px 0; border-radius: 6px; border: 1px solid #e2e8f0; }
+                                
+                                .options-list { list-style-type: none; padding: 0; margin: 12px 0 0 0; }
+                                .options-list li { margin-bottom: 8px; display: flex; align-items: flex-start; }
+                                .opt-label { 
+                                    width: 24px; 
+                                    font-weight: 800; 
+                                    color: #334155;
+                                }
+                                .opt-img { max-height: 100px; display: block; margin-top: 5px; border-radius: 4px; border: 1px solid #e2e8f0; }
+                                
+                                .kat-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10.5pt; }
+                                .kat-table th { background-color: #f1f5f9; color: #334155; font-weight: 800; border: 1px solid #cbd5e1; padding: 10px; }
+                                .kat-table td { border: 1px solid #cbd5e1; padding: 10px; color: #1e293b; }
+                                .kat-table th.center, .kat-table td.center { text-align: center; width: 80px; }
+                                
+                                .essay-space { border: 2px dashed #cbd5e1; border-radius: 8px; height: 120px; margin-top: 15px; background-color: #f8fafc; }
+                                .stimulus-box { margin-bottom: 15px; font-style: italic; color: #475569; padding: 12px; background-color: #f8fafc; border-left: 4px solid #94a3b8; border-radius: 0 6px 6px 0; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="header-container">
+                                <h1>${identitas.jenisUjian || 'UJIAN SEKOLAH'}</h1>
+                                <h2>${identitas.judulUjian}</h2>
+                            </div>
+                            
+                            <div class="info-wrapper">
+                                <table class="info-table">
+                                    <tr>
+                                        <td class="label-td">Mata Pelajaran</td><td class="colon-td">:</td><td class="val-td">${identitas.mataPelajaran}</td>
+                                        <td class="label-td" style="padding-left: 20px;">Nama Peserta</td><td class="colon-td">:</td><td class="val-td-empty"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label-td">Durasi Waktu</td><td class="colon-td">:</td><td class="val-td">${identitas.durasi} Menit</td>
+                                        <td class="label-td" style="padding-left: 20px;">Kelas / No</td><td class="colon-td">:</td><td class="val-td-empty"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label-td">Guru Pengampu</td><td class="colon-td">:</td><td colspan="4" class="val-td" style="border-bottom:none;">${identitas.namaGuru}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        `;
+
+                        // Looping Soal
+                        soalList.forEach((q, index) => {
+                            html += `<div class="question-block">
+                                        <div class="q-number">${q.nomorSoal}</div>
+                                        <div class="q-content">`;
+                            
+                            // Stimulus dengan desain callout
+                            if(q.stimulus) { html += `<div class="stimulus-box">${q.stimulus.replace(/<img[^>]+src="([^">]+)"/g, '<img src="$1" class="q-image"')}</div>`; }
+                            // Supporting Image
+                            if(q.urlGambar && q.urlGambar !== "undefined") { html += `<img src="${q.urlGambar}" class="q-image">`; }
+                            // Soal Utama
+                            html += `<div>${q.soalUtama.replace(/<img[^>]+src="([^">]+)"/g, '<img src="$1" class="q-image"')}</div>`;
+
+                            // Render Berdasarkan Tipe
+                            if(q.tipeSoal === 'pg_tunggal' || q.tipeSoal === 'pg_majemuk') {
+                                try {
+                                    const opsi = JSON.parse(q.dataOpsi);
+                                    html += `<ul class="options-list">`;
+                                    for(const key in opsi) {
+                                        let val = opsi[key];
+                                        val = val.replace(/<img[^>]+src="([^">]+)"/g, '<img src="$1" class="opt-img"');
+                                        html += `<li><span class="opt-label">${key}.</span> <div>${val}</div></li>`;
+                                    }
+                                    html += `</ul>`;
+                                } catch(e){}
+                            } 
+                            else if (q.tipeSoal === 'kategori') {
+                                try {
+                                    const dataKat = JSON.parse(q.dataOpsi);
+                                    html += `<table class="kat-table">
+                                                <thead><tr><th>Pernyataan</th><th class="center">${dataKat.headers[0]}</th><th class="center">${dataKat.headers[1]}</th></tr></thead>
+                                                <tbody>`;
+                                    dataKat.statements.forEach(stmt => {
+                                        html += `<tr><td>${stmt}</td><td class="center"></td><td class="center"></td></tr>`;
+                                    });
+                                    html += `</tbody></table>`;
+                                } catch(e){}
+                            }
+                            else if (q.tipeSoal === 'isian' || q.tipeSoal === 'essay') {
+                                html += `<div class="essay-space"></div>`;
+                            }
+
+                            html += `</div></div>`; // End q-content & question-block
+                        });
+
+                        html += `</body></html>`;
+                        
+                        // Masukkan HTML ke window baru
+                        printWindow.document.write(html);
+                        printWindow.document.close();
+                        
+                        // Tunggu sebentar sampai gambar & font selesai di render, baru panggil Print
+                        setTimeout(() => {
+                            printWindow.print();
+                            showToast("PDF siap dicetak!", true);
+                        }, 1000);
+
+                    } else {
+                        showToast("Gagal mengambil data soal: " + result.message);
+                    }
+                } catch (error) {
+                    showToast("Error Jaringan saat mengambil data PDF.");
+                }
+            }
+
+        }); 
+    </script>
+</body>
+</html>
