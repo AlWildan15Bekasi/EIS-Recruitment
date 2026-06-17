@@ -307,15 +307,22 @@
                     </div>
                     Step 1: Identitas Ujian
                 </h2>
+                <!-- GRID DIUBAH JADI 3 BARIS 2 KOLOM -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6 relative z-10" id="identityFormContainer">
-                    <div class="md:col-span-2">
+                    <div>
                         <label class="block text-sm font-bold mb-2 text-slate-700">Jenis Ujian</label>
                         <select id="examType" class="glass-input w-full p-3.5 rounded-xl font-medium cursor-pointer">
                             <option value="" disabled selected>Pilih Jenis Ujian...</option>
-                            <option value="Recruitment Test">Recruitment Test</option>
-                            <option value="Comprehensive Test">Comprehensive Test</option>
-                            <option value="Mapping Test">Mapping Test</option>
+                            <option value="SNBT">SNBT</option>
+                            <option value="TKA">TKA</option>
+                            <option value="SAJ">SAJ</option>
+                            <option value="SAT">SAT</option>
+                            <option value="STS">STS</option>
                         </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 text-slate-700">Kelas Target</label>
+                        <input type="text" id="examClass" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Contoh: 6 (Hanya Angka)" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                     </div>
                     <div>
                         <label class="block text-sm font-bold mb-2 text-slate-700">Judul Ujian</label>
@@ -525,7 +532,7 @@
     <!-- ================= JAVASCRIPT & BACKEND INTEGRATION ================= -->
     <script>
         // --- API URL DARI GOOGLE APPS SCRIPT ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytxKcPHU1IVI-xxEkbrFSjR-cOxNDTyUJSLQ8DEMvdPXS8auTd6MmXB72xJ44-U5DfuQ/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoiGCoEl-mktO9pQtQxDXHIixp-eqToLUIfr10DgazZnu8y0AErvE5ju2UShC_xPuncg/exec';
 
         let currentOptionsList = ['A', 'B', 'C', 'D', 'E']; 
         const MAX_OPTIONS = 8;
@@ -708,8 +715,9 @@
 
                     const payload = {
                         action: 'save_identity',
-                        namaGuru: globalNamaGuru, // MENGIRIM NAMA GURU
+                        namaGuru: globalNamaGuru,
                         jenisUjian: document.getElementById('examType').value,
+                        kelas: document.getElementById('examClass').value, // <--- MENGIRIM DATA KELAS
                         judulUjian: document.getElementById('examTitle').value,
                         mataPelajaran: document.getElementById('examSubject').value,
                         durasi: document.getElementById('examDuration').value,
@@ -749,7 +757,7 @@
             });
 
 
-            // --- 3. TOGGLE GAMBAR/TEKS & ENGINE FORM SOAL DINAMIS (Tidak ada perubahan) ---
+            // --- 3. TOGGLE GAMBAR/TEKS & ENGINE FORM SOAL DINAMIS ---
             document.body.addEventListener('click', function(e) {
                 if (e.target && e.target.classList && e.target.classList.contains('input-toggle-btn')) {
                     const targetId = e.target.getAttribute('data-target');
@@ -996,6 +1004,21 @@
             //  FITUR BARU: LOAD HISTORY & GENERATE PDF
             // =========================================================================
 
+            // Fungsi untuk memformat ISO string jadi format Indonesia (misal: 13 Jun 2026, 14:16)
+            function formatDate(isoString) {
+                if (!isoString) return '-';
+                try {
+                    const date = new Date(isoString);
+                    // Kalau tanggalnya nggak valid (misalnya format bawaan sheet bukan ISO)
+                    if (isNaN(date.getTime())) return isoString; 
+                    
+                    const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+                    return date.toLocaleDateString('id-ID', options).replace(/\./g, ':');
+                } catch(e) {
+                    return isoString;
+                }
+            }
+
             async function loadExamHistory() {
                 const container = document.getElementById('previewStatusContainer');
                 
@@ -1026,12 +1049,13 @@
                             // Render Daftar Kartu Histori
                             let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
                             history.forEach(item => {
+                                // GANTI PANGGILAN item.waktuDibuat DENGAN formatDate(item.waktuDibuat)
                                 html += `
                                     <div class="inner-panel rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border-l-4 border-l-cyan-500 flex flex-col justify-between bg-white/70">
                                         <div>
                                             <div class="flex justify-between items-start mb-2">
                                                 <span class="bg-cyan-100 text-cyan-800 text-xs font-black px-3 py-1 rounded-full border border-cyan-200">${item.jenisUjian || 'UJIAN'}</span>
-                                                <span class="text-xs font-bold text-slate-400">${item.waktuDibuat}</span>
+                                                <span class="text-xs font-bold text-slate-400">${formatDate(item.waktuDibuat)}</span>
                                             </div>
                                             <h3 class="text-xl font-extrabold text-slate-800 mb-1 leading-tight">${item.judulUjian}</h3>
                                             <p class="text-sm font-bold text-blue-600 mb-4">${item.mataPelajaran}</p>
