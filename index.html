@@ -307,7 +307,7 @@
                     </div>
                     Step 1: Identitas Ujian
                 </h2>
-                <!-- GRID DIUBAH JADI 3 BARIS 2 KOLOM -->
+                <!-- UPDATE: FORM MENJADI 3 BARIS x 2 KOLOM -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6 relative z-10" id="identityFormContainer">
                     <div>
                         <label class="block text-sm font-bold mb-2 text-slate-700">Jenis Ujian</label>
@@ -321,8 +321,10 @@
                         </select>
                     </div>
                     <div>
+                        <!-- UPDATE: TAMBAHAN KOTAK KELAS -->
                         <label class="block text-sm font-bold mb-2 text-slate-700">Kelas Target</label>
-                        <input type="text" id="examClass" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Contoh: 6 (Hanya Angka)" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                        <!-- Menggunakan oninput untuk membuang semua karakter selain angka (0-9) -->
+                        <input type="text" id="examClass" class="glass-input w-full p-3.5 rounded-xl font-medium" placeholder="Contoh: 6 (Hanya Angka)" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                     <div>
                         <label class="block text-sm font-bold mb-2 text-slate-700">Judul Ujian</label>
@@ -715,9 +717,10 @@
 
                     const payload = {
                         action: 'save_identity',
-                        namaGuru: globalNamaGuru,
+                        namaGuru: globalNamaGuru, 
                         jenisUjian: document.getElementById('examType').value,
-                        kelas: document.getElementById('examClass').value, // <--- MENGIRIM DATA KELAS
+                        // UPDATE: Menangkap nilai dari input Kelas Target
+                        kelas: document.getElementById('examClass').value,
                         judulUjian: document.getElementById('examTitle').value,
                         mataPelajaran: document.getElementById('examSubject').value,
                         durasi: document.getElementById('examDuration').value,
@@ -1004,19 +1007,17 @@
             //  FITUR BARU: LOAD HISTORY & GENERATE PDF
             // =========================================================================
 
-            // Fungsi untuk memformat ISO string jadi format Indonesia (misal: 13 Jun 2026, 14:16)
+            // Fungsi Helper untuk merapikan format tanggal UTC jadi format Lokal
             function formatDate(isoString) {
-                if (!isoString) return '-';
-                try {
-                    const date = new Date(isoString);
-                    // Kalau tanggalnya nggak valid (misalnya format bawaan sheet bukan ISO)
-                    if (isNaN(date.getTime())) return isoString; 
-                    
-                    const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-                    return date.toLocaleDateString('id-ID', options).replace(/\./g, ':');
-                } catch(e) {
-                    return isoString;
-                }
+                if (!isoString) return "-";
+                const date = new Date(isoString);
+                if (isNaN(date.getTime())) return isoString; // Kalau formatnya bukan ISO, balikin string aslinya
+
+                const options = { 
+                    day: 'numeric', month: 'short', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit' 
+                };
+                return date.toLocaleDateString('id-ID', options).replace(/\./g, ':');
             }
 
             async function loadExamHistory() {
@@ -1049,13 +1050,15 @@
                             // Render Daftar Kartu Histori
                             let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
                             history.forEach(item => {
-                                // GANTI PANGGILAN item.waktuDibuat DENGAN formatDate(item.waktuDibuat)
+                                // MENGGUNAKAN HELPER FUNGSI TANGGAL DI SINI
+                                const displayDate = formatDate(item.waktuDibuat);
+
                                 html += `
                                     <div class="inner-panel rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border-l-4 border-l-cyan-500 flex flex-col justify-between bg-white/70">
                                         <div>
                                             <div class="flex justify-between items-start mb-2">
-                                                <span class="bg-cyan-100 text-cyan-800 text-xs font-black px-3 py-1 rounded-full border border-cyan-200">${item.jenisUjian || 'UJIAN'}</span>
-                                                <span class="text-xs font-bold text-slate-400">${formatDate(item.waktuDibuat)}</span>
+                                                <span class="bg-cyan-100 text-cyan-800 text-xs font-black px-3 py-1 rounded-full border border-cyan-200">${item.jenisUjian || 'UJIAN'} - Kls ${item.kelas || '-'}</span>
+                                                <span class="text-xs font-bold text-slate-500">${displayDate}</span>
                                             </div>
                                             <h3 class="text-xl font-extrabold text-slate-800 mb-1 leading-tight">${item.judulUjian}</h3>
                                             <p class="text-sm font-bold text-blue-600 mb-4">${item.mataPelajaran}</p>
@@ -1210,7 +1213,7 @@
                         </head>
                         <body>
                             <div class="header-container">
-                                <h1>${identitas.jenisUjian || 'UJIAN SEKOLAH'}</h1>
+                                <h1>${identitas.jenisUjian || 'UJIAN SEKOLAH'} - KELAS ${identitas.kelas || '-'}</h1>
                                 <h2>${identitas.judulUjian}</h2>
                             </div>
                             
